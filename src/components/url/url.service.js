@@ -2,44 +2,16 @@ const asyncHandler = require('express-async-handler');
 const logger = require('../../lib/helpers/loggerHelpers');
 const ShortUniqueId = require('short-unique-id');
 const config = require('../../config');
-
-const db = {};
-
-const addUrlData = ({ longUrl, shortUrlId, data }) => {
-  db[longUrl] = { data, shortUrlId };
-  return data;
-};
-
-const updateUrlData = ({ shortUrlId, newData }) => {
-  for (const key in db) {
-    if (db[key].shortUrlId === shortUrlId || key === shortUrlId) {
-      db[key].data = newData;
-      return newData;
-    }
-  }
-  return false;
-};
-
-const getUrlData = (key) => {
-  for (const longUrl in db) {
-    if (db[longUrl].shortUrlId === key) {
-      return db[longUrl].data;
-    }
-    if (longUrl === key) {
-      return db[longUrl].data;
-    }
-  }
-
-  return null;
-};
+const urlDataStorage = require('./url.db');
 
 exports.encodeUrl = asyncHandler(async ({ longUrl }) => {
-  let url = getUrlData(longUrl);
+  let url = urlDataStorage.getUrlData(longUrl);
   let result = null;
 
   if (url) {
     return {
       ...url,
+      visitHistory: undefined,
       exist: true,
     };
   }
@@ -56,7 +28,8 @@ exports.encodeUrl = asyncHandler(async ({ longUrl }) => {
     visitHistory: [],
   };
 
-  url = addUrlData({ longUrl, shortUrlId, data: url });
+  url = urlDataStorage.addUrlData({ longUrl, shortUrlId, data: url });
+
   result = {
     ...url,
     visitHistory: undefined,
@@ -66,13 +39,13 @@ exports.encodeUrl = asyncHandler(async ({ longUrl }) => {
 });
 
 exports.decodeUrl = asyncHandler(async ({ shortUrlId }) => {
-  let url = getUrlData(shortUrlId);
+  let url = urlDataStorage.getUrlData(shortUrlId);
   let result = null;
 
   if (url) {
     const visitedDate = new Date();
     url.visitHistory.push(visitedDate);
-    url = updateUrlData({ shortUrlId, newData: url });
+    url = urlDataStorage.updateUrlData({ shortUrlId, newData: url });
 
     result = {
       ...url,
@@ -84,7 +57,7 @@ exports.decodeUrl = asyncHandler(async ({ shortUrlId }) => {
 });
 
 exports.getUrlStatistics = asyncHandler(async ({ shortUrlId }) => {
-  const url = getUrlData(shortUrlId);
+  const url = urlDataStorage.getUrlData(shortUrlId);
   if (url) {
     url.totalClicks = url.visitHistory.length;
   }
