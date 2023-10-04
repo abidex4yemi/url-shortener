@@ -50,7 +50,7 @@ router.get(
  * @return {Shortener} `Shortener` instance
  */
 router.get(
-  '/statistic/:shortId',
+  '/statistic/:shortUrlId',
   validateShortUrlId(),
   catchErrors(urlController.getUrlStatistics)
 );

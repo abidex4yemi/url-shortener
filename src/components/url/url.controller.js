@@ -81,5 +81,31 @@ exports.decodeUrl = asyncHandler(async (req, res) => {
 });
 
 exports.getUrlStatistics = asyncHandler(async (req, res) => {
-  return {};
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    logger.info('Invalid parameters');
+    throw urlError.InvalidIdParams(errors.mapped());
+  }
+
+  const { shortUrlId } = req.params;
+  const url = await urlService.getUrlStatistics({ shortUrlId });
+
+  if (!url) {
+    return res.status(404).send(
+      sendResponse({
+        message: 'url not found',
+        content: url,
+        success: false,
+      })
+    );
+  }
+
+  return res.status(200).send(
+    sendResponse({
+      message: 'Url statistics loaded.',
+      content: url,
+      success: true,
+    })
+  );
 });

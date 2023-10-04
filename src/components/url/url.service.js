@@ -5,16 +5,16 @@ const config = require('../../config');
 
 const db = {};
 
-const addUrlData = ({ longUrl, shortId, data }) => {
-  db[longUrl] = { data, shortId };
+const addUrlData = ({ longUrl, shortUrlId, data }) => {
+  db[longUrl] = { data, shortUrlId };
   return data;
 };
 
-const updateUrlData = ({ shortId, newData }) => {
+const updateUrlData = ({ shortUrlId, newData }) => {
   for (const key in db) {
-    if (db[key].shortId === shortId || key === shortId) {
+    if (db[key].shortUrlId === shortUrlId || key === shortUrlId) {
       db[key].data = newData;
-      return true;
+      return newData;
     }
   }
   return false;
@@ -22,7 +22,7 @@ const updateUrlData = ({ shortId, newData }) => {
 
 const getUrlData = (key) => {
   for (const longUrl in db) {
-    if (db[longUrl].shortId === key) {
+    if (db[longUrl].shortUrlId === key) {
       return db[longUrl].data;
     }
     if (longUrl === key) {
@@ -35,6 +35,7 @@ const getUrlData = (key) => {
 
 exports.encodeUrl = asyncHandler(async ({ longUrl }) => {
   let url = getUrlData(longUrl);
+  let result = null;
 
   if (url) {
     return {
@@ -44,33 +45,49 @@ exports.encodeUrl = asyncHandler(async ({ longUrl }) => {
   }
 
   const { randomUUID } = new ShortUniqueId({ length: 6 });
-  const shortId = randomUUID();
+  const shortUrlId = randomUUID();
 
-  const shortUrl = `${config.baseUrl}:${config.port}/${shortId}`;
+  const shortUrl = `${config.baseUrl}:${config.port}/${shortUrlId}`;
   url = {
     shortUrl,
     createdAt: new Date(),
     longUrl,
-    shortId,
+    shortUrlId,
     visitHistory: [],
   };
 
-  url = addUrlData({ longUrl, shortId, data: url });
+  url = addUrlData({ longUrl, shortUrlId, data: url });
+  result = {
+    ...url,
+    visitHistory: undefined,
+  };
 
   return url;
 });
 
 exports.decodeUrl = asyncHandler(async ({ shortUrlId }) => {
-  const url = getUrlData(shortUrlId);
+  let url = getUrlData(shortUrlId);
+  let result = null;
+
   if (url) {
     const visitedDate = new Date();
     url.visitHistory.push(visitedDate);
-    updateUrlData({ shortUrlId, newData: url });
+    url = updateUrlData({ shortUrlId, newData: url });
+
+    result = {
+      ...url,
+      visitHistory: undefined,
+    };
+  }
+
+  return result;
+});
+
+exports.getUrlStatistics = asyncHandler(async ({ shortUrlId }) => {
+  const url = getUrlData(shortUrlId);
+  if (url) {
+    url.totalClicks = url.visitHistory.length;
   }
 
   return url;
-});
-
-exports.getUrlStatistics = asyncHandler(async (req, res) => {
-  return {};
 });
