@@ -20,7 +20,7 @@ exports.encodeUrl = asyncHandler(async (req, res) => {
   const urlObject = new URL(longUrl);
   const dnsLookup = await dnsPromises.lookup(urlObject.hostname);
 
-  if (!dnsLookup?.address) {
+  if (!dnsLookup || !dnsLookup?.address) {
     return res.status(400).send(
       sendResponse({
         message: 'Invalid URL, Please provide a valid url',

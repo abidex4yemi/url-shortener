@@ -26,6 +26,23 @@ describe('POST /api/v1/url/encode', () => {
     expect(encodedUrlResponse.content.shortUrl).to.exist;
     expect(encodedUrlResponse.message).to.equal('Url successfully encoded.');
   });
+
+  it('should return error if long url is not valid', async () => {
+    const invalidLongUrlResponse = await new Promise((resolve, reject) => {
+      request(app)
+        .post(`${baseUrl}/encode`)
+        .send({ longUrl: 'https://cloud.ditaloean.com' })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(500)
+        .end((err, res) => {
+          if (err) return reject(err);
+          resolve(res.body);
+        });
+    });
+
+    expect(invalidLongUrlResponse.success).to.be.false;
+  });
 });
 
 describe('GET /api/v1/url/decode', () => {
