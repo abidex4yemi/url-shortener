@@ -62,7 +62,7 @@ exports.encodeUrl = asyncHandler(async ({ longUrl }) => {
     visitHistory: undefined,
   };
 
-  return url;
+  return result;
 });
 
 exports.decodeUrl = asyncHandler(async ({ shortUrlId }) => {
