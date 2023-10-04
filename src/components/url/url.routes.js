@@ -3,6 +3,7 @@ const router = Router();
 const { validateShortUrlId, validateLongUrl } = require('./url.validators');
 const urlController = require('./url.controller');
 const { catchErrors } = require('../../lib/helpers/errorFormatHelpers');
+const { sanitizeUrl } = require('../../lib/middlewares');
 
 /**
  * Shortener Module health status
@@ -25,7 +26,12 @@ router.get('/health-check', (req, res) => {
  * @param  {String}
  * @return {Shortener} `Shortener` instance
  */
-router.post('/encode', validateLongUrl(), catchErrors(urlController.encodeUrl));
+router.post(
+  '/encode',
+  validateLongUrl(),
+  sanitizeUrl,
+  catchErrors(urlController.encodeUrl)
+);
 
 /**
  * @name   url/decode
