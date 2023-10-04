@@ -10,6 +10,10 @@
 - Type `npm run start:dev` to start the development server.
 - The application runs on `http://localhost:4000` by default.
 
+## Run test
+
+- In your terminal, run `npm test`.
+
 ## Required features
 
 - Encode a url **/encode url**
