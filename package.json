@@ -23,6 +23,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "dns": "^0.2.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
@@ -31,8 +32,11 @@
     "http-status-codes": "^2.3.0",
     "in-memory-database": "^1.0.1",
     "morgan": "^1.10.0",
+    "nanoid": "^5.0.1",
     "nodemon": "^3.0.1",
     "pretty-error": "^4.0.0",
+    "short-unique-id": "^5.0.3",
+    "url": "^0.11.3",
     "winston": "^3.10.0"
   }
 }
