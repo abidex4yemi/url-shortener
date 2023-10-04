@@ -51,7 +51,33 @@ exports.encodeUrl = asyncHandler(async (req, res) => {
 });
 
 exports.decodeUrl = asyncHandler(async (req, res) => {
-  return {};
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    logger.info('Invalid parameters');
+    throw urlError.InvalidIdParams(errors.mapped());
+  }
+
+  const { shortUrlId } = req.params;
+  const url = await urlService.decodeUrl({ shortUrlId });
+
+  if (!url) {
+    return res.status(404).send(
+      sendResponse({
+        message: 'url not found',
+        content: url,
+        success: false,
+      })
+    );
+  }
+
+  return res.status(200).send(
+    sendResponse({
+      message: 'Url found.',
+      content: url,
+      success: true,
+    })
+  );
 });
 
 exports.getUrlStatistics = asyncHandler(async (req, res) => {
