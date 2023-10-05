@@ -34,7 +34,7 @@ describe('POST /api/v1/url/encode', () => {
         .send({ longUrl: 'https://cloud.ditaloean.com' })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
-        .expect(500)
+        .expect(404)
         .end((err, res) => {
           if (err) return reject(err);
           resolve(res.body);

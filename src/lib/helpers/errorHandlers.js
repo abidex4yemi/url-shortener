@@ -18,6 +18,11 @@ function errorHandler() {
 
     app.use((err, req, res, next) => {
       this.logAndNotifyAboutError(err);
+      if (err.code === 'ENOTFOUND') {
+        err.message = 'Hostname not found. Check the domain name.';
+        err.httpCode = 404;
+      }
+
       res
         .status(err.httpCode ? err.httpCode : 500)
         .json(this.getFriendlyResponse(err));
